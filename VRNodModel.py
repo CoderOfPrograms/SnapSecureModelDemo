@@ -67,8 +67,12 @@ def predict_single_json(json_data, model_path):
     # Load the pre-trained model
     model = joblib.load(model_path)
 
-    # Process the JSON data
-    data = json_data["headControllersMotionRecordList"]
+    # Process the JSON data safely
+    try:
+        data = json_data["headControllersMotionRecordList"]
+    except KeyError:
+        return {"error": "Key 'headControllersMotionRecordList' not found in the JSON data."}
+
     df = convert_data_to_df(data)
     df.sort_values(by=["timeStamp"], inplace=True)
     id = df["id"].iloc[0]
@@ -81,12 +85,34 @@ def predict_single_json(json_data, model_path):
         if features is not None:
             X_test.append(features)
 
+    # Convert X_test to a NumPy array for prediction
     if X_test:
-        predictions = model.predict(X_test)
+        X_test_array = np.array(X_test)
+
+        # Check for missing values
+        if np.any(np.isnan(X_test_array)):
+            return {"error": "X_test contains missing values."}
+
+        predictions = model.predict(X_test_array)
         predictions = predictions.tolist()
         pred = max(set(predictions), key=predictions.count)
     else:
         pred = None
 
-    y_true = [id] * len(predictions)
-    y_pred = predict
+    y_true = [id] * len(predictions) if predictions else []
+    y_pred = predictions
+
+    # Calculate metrics if predictions were made
+    if predictions:
+        balanced_acc = balanced_accuracy_score(y_true, y_pred)
+        weighted_f1 = f1_score(y_true, y_pred, average="weighted")
+    else:
+        balanced_acc = None
+        weighted_f1 = None
+
+    return {
+        "predicted": pred,
+        "actual": id,
+        "balanced_accuracy": balanced_acc,
+        "weighted_f1_score": weighted_f1,
+    }
