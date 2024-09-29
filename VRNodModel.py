@@ -68,7 +68,11 @@ def predict_single_json(json_data, model_path):
     model = joblib.load(model_path)
 
     # Process the JSON data
-    data = json_data["headControllersMotionRecordList"]
+    if "headHandsMotionRecordList" in data:
+        data = data["headHandsMotionRecordList"]
+    elif "headControllersMotionRecordList" in data:
+        data = data["headControllersMotionRecordList"]
+                    
     df = convert_data_to_df(data)
     df.sort_values(by=["timeStamp"], inplace=True)
     id = df["id"].iloc[0]
