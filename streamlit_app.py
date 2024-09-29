@@ -9,16 +9,6 @@ This app supports multiple motion analysis categories across both VR and AR envi
 """)
 
 # File input for each category
-st.subheader("VR Motion Analysis")
-# File input for VR Nod Analysis and other categories
-vr_nod = st.file_uploader("Upload VR Nod JSON", type=["json"])
-vr_wave = st.file_uploader("VR Wave Motion Analysis (Controllers)", type=["json"])
-vr_ymca = st.file_uploader("VR YMCA Analysis", type=["json"])
-
-st.subheader("AR Motion Analysis")
-ar_nod = st.file_uploader("AR Nod Analysis", type=["json"])
-ar_tap = st.file_uploader("AR Tap Gesture", type=["json"])
-
 st.subheader("Heart Rate Models")
 vr_heart_rate = st.file_uploader("VR Heart Rate Models", type=["csv"])  # CSV input for VR heart rate
 ar_heart_rate = st.file_uploader("AR Heart Rate Models", type=["json"])
