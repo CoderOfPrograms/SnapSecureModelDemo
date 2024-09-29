@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import pandas as pd
 import hr  # Import your hr.py file
+import nod  # Import your nod.py file
 
 st.title("Snap Secure Model Demo")
 
@@ -12,16 +13,19 @@ This app supports multiple motion analysis categories across both VR and AR envi
 
 # File input for each category
 st.subheader("Heart Rate Models")
-vr_heart_rate = st.file_uploader("Upload VR Heart Rate Models (CSV)", type=["csv"])  # CSV input for VR heart rate
+vr_heart_rate_csv = st.file_uploader("Upload VR Heart Rate Models (CSV)", type=["csv"])  # CSV input for VR heart rate
 ar_heart_rate = st.file_uploader("Upload AR Heart Rate Models (JSON)", type=["json"])
+
+st.subheader("Cross-device Gesture Models")
+vr_gesture_model = st.file_uploader("Nod Model across Multiple VR and AR Devices", type=["json"]) 
 
 st.subheader("Tremor Detection")
 tremor_detection = st.file_uploader("Upload Tremor Detection Data (JSON)", type=["json"])
 
 # Example of processing data after upload
-if vr_heart_rate:
+if vr_heart_rate_csv:
     # Read the uploaded CSV file
-    csv_data = vr_heart_rate.read()  # Read the file as bytes
+    csv_data = vr_heart_rate_csv.read()  # Read the file as bytes
     csv_file_path = "uploaded_vr_heart_rate.csv"  # Temporary path for processing
     with open(csv_file_path, "wb") as f:
         f.write(csv_data)  # Write bytes to a temporary file
@@ -47,5 +51,27 @@ if vr_heart_rate:
                 st.write(f"Heart Rate at second {i}: {hr_value:.2f} BPM")
             else:
                 st.write(f"No data at second {i}")
+
+# Process VR gesture model JSON
+if vr_gesture_model:
+    # Read the uploaded JSON file
+    json_data = vr_gesture_model.read()  # Read the file as bytes
+    json_file_path = "uploaded_vr_gesture_model.json"  # Temporary path for processing
+    with open(json_file_path, "wb") as f:
+        f.write(json_data)  # Write bytes to a temporary file
+
+    st.write("VR Gesture Model JSON uploaded!")
+    
+    # Call the prediction function
+    model_path = "NodTripleThreat.pkl"  # Path to your trained model
+    result = nod.predict_single_json(json_file_path, model_path)
+
+    # Display the prediction results
+    if result:
+        st.subheader("Gesture Prediction Results:")
+        st.write(f"Predicted Gesture: {result['predicted']}")
+        st.write(f"Actual Gesture: {result['actual']}")
+        st.write(f"Balanced Accuracy: {result['balanced_accuracy']:.2f}")
+        st.write(f"Weighted F1 Score: {result['weighted_f1_score']:.2f}")
 
 # You can add additional processing for AR heart rate and tremor detection here if needed
