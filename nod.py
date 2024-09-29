@@ -101,6 +101,4 @@ def predict_single_json(json_file_path, model_path):
         "weighted_f1_score": weighted_f1,
     }
 
-# Usage example
-result = predict_single_json("/content/Wave/test/VrGesturesStudy_HeadAndControllers_WaveControllerStand10_2024-07-16_11-00-37.json", "NodTripleThreat.pkl")
-print(result)
+
