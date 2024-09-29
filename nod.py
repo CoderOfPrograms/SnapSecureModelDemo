@@ -41,7 +41,24 @@ def convert_data_to_df(data):
             ["rightHandRotation", "y"],
             ["rightHandRotation", "z"],
         ],
+        errors='ignore'  # Ignore any missing fields instead of raising an error
     )
+
+    # Select only the columns that match the meta fields
+    columns_to_include = [
+        "id",
+        "timeStamp",
+        "headPosition.x",
+        "headPosition.y",
+        "headPosition.z",
+        "headRotation.x",
+        "headRotation.y",
+        "headRotation.z",
+    ]
+
+    # Filter the DataFrame to include only the specified columns
+    df = df[columns_to_include]
+
     return df
 
 def extract_features(df):
@@ -67,7 +84,15 @@ def predict_single_json(json_file_path, model_path):
 
     # Load and process the JSON file
     with open(json_file_path, "r") as f:
-        data = json.load(f)["headControllersMotionRecordList"]
+        json_data = json.load(f)
+    
+    if "headControllersMotionRecordList" in json_data:
+        data = json_data["headControllersMotionRecordList"]
+    elif "headHandsMotionRecordList" in json_data:
+        data = json_data["headHandsMotionRecordList"]
+    else:
+        raise ValueError("JSON file does not contain expected keys 'headControllersMotionRecordList' or 'headHandsMotionRecordList'")
+
     df = convert_data_to_df(data)
     df.sort_values(by=["timeStamp"], inplace=True)
     id = df["id"].iloc[0]
@@ -87,12 +112,12 @@ def predict_single_json(json_file_path, model_path):
     else:
         pred = None
 
-    y_true = [id] * len(predictions)
+    y_true = [id] * len(predictions) if predictions else []
     y_pred = predictions
 
     # Calculate metrics
-    balanced_acc = balanced_accuracy_score(y_true, y_pred)
-    weighted_f1 = f1_score(y_true, y_pred, average="weighted")
+    balanced_acc = balanced_accuracy_score(y_true, y_pred) if y_true else None
+    weighted_f1 = f1_score(y_true, y_pred, average="weighted") if y_true else None
 
     return {
         "predicted": pred,
