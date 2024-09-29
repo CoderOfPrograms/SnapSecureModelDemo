@@ -64,11 +64,18 @@ def convert_data_to_df(data):
 def extract_features(df):
     if df.empty:
         return None
+    # Only select specific columns to match the training data
+    selected_columns = [
+        "headPosition.x", "headPosition.y", "headPosition.z",
+        "headRotation.x", "headRotation.y", "headRotation.z"
+    ]
+    
     features = []
-    for col in df.columns:
-        if col != 'timeStamp':
+    for col in selected_columns:
+        if col in df.columns:
             if df[col].isna().all():
                 return None
+            # Compute max, min, mean, std, median for each column
             features.extend([
                 df[col].max(),
                 df[col].min(),
@@ -76,7 +83,9 @@ def extract_features(df):
                 df[col].std(),
                 df[col].median()
             ])
-    return features
+    
+    # Ensure that the number of features matches the expected number (30)
+    return features if len(features) == 30 else None
 
 def predict_single_json(json_file_path, model_path):
     # Load the pre-trained model
