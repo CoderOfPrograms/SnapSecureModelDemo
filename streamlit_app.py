@@ -13,7 +13,6 @@ This app supports multiple motion analysis categories across both VR and AR envi
 
 # File input for each category
 st.subheader("Heart Rate Models")
-st.write("### Ian's HR Data")  # Add a title specifically for Ian's HR data
 vr_heart_rate_csv = st.file_uploader("Upload VR Heart Rate Models (CSV)", type=["csv"])  # CSV input for VR heart rate
 ar_heart_rate = st.file_uploader("Upload AR Heart Rate Models (JSON)", type=["json"])
 
@@ -42,7 +41,7 @@ if vr_heart_rate_csv:
         heart_rates_df.index += 1  # Start index from 1 for better readability
 
         # Plotting the heart rates
-        st.subheader("Heart Rates Over Time:")
+        st.subheader("Ian's Heart Rates Over Time:")
         st.line_chart(heart_rates_df)
 
         # Display heart rates as a list
