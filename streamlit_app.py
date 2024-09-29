@@ -1,4 +1,5 @@
 import streamlit as st
+from VRNodModel import predict_single_json
 
 st.title("Snap Secure Model Demo")
 
@@ -9,9 +10,29 @@ This app supports multiple motion analysis categories across both VR and AR envi
 
 # File input for each category
 st.subheader("VR Motion Analysis")
+# File input for VR Nod Analysis and other categories
+vr_nod = st.file_uploader("Upload VR Nod JSON", type=["json"])
+
+# Define the path to the pre-trained model (relative to the current working directory)
+model_path = "NodTripleThreat.pkl"
+
+if vr_nod:
+    st.write("VR Nod JSON file uploaded! Processing...")
+
+    # Load the uploaded JSON file
+    json_data = json.load(vr_nod)
+
+    # Run the prediction function
+    result = predict_single_json(json_data, model_path)
+
+    # Display results
+    if result:
+        st.write("Prediction Results:")
+        st.json(result)
+    else:
+        st.write("No valid data found for prediction.")
 vr_wave = st.file_uploader("VR Wave Motion Analysis (Controllers)", type=["json"])
 vr_ymca = st.file_uploader("VR YMCA Analysis", type=["json"])
-vr_nod = st.file_uploader("VR Nod Analysis (3 headsets)", type=["json"])
 
 st.subheader("AR Motion Analysis")
 ar_nod = st.file_uploader("AR Nod Analysis", type=["json"])
